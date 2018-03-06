@@ -1,0 +1,25 @@
+{
+  "name": "proxy-tmk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.16.2",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thesilverspoon/proxy-tmk.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thesilverspoon/proxy-tmk/issues"
+  },
+  "homepage": "https://github.com/thesilverspoon/proxy-tmk#readme"
+}
