@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <title>Silver Spoon</title>
+    <link rel="stylesheet" type="text/css" href="about-styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="reviews-reviews.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+  </head>
+  <body>
+    <div id="about"></div>
+    <div id="reservations"></div>
+    <div id="menu"></div>
+    <div id="reviews"></div>
+
+    <script type="text/javascript" src="about-bundle.js"></script>
+    <script type="text/javascript" src="res-bundle-prod.js"></script>
+    <script type="text/javascript" src="menu-bundle.js"></script>
+    <script type="text/javascript" src="reviews-bundle.js"></script>
+    <script type="text/javascript">
+
+ReactDOM.render(
+  React.createElement(SummaryView, {id: 305}, null),
+  document.getElementById('about'));
+
+ReactDOM.render(
+  React.createElement(Reservation, {id: 305}, null),
+  document.getElementById('reservations'));
+
+ReactDOM.render(
+  React.createElement(MenuView, {id: 305}, null),
+  document.getElementById('menu'));
+
+ReactDOM.render(
+  React.createElement(App, {id: 305}, null),
+  document.getElementById('reviews'));
+
+    </script>
+  </body>
+</html>

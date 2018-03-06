@@ -4,3 +4,11 @@ reservations-component/
 reviews-component/
 
 node_modules/
+
+about-bundle.js
+menu-bundle.js
+res-bundle-prod.js
+reviews-bundle.js
+
+about-styles.css
+reviews-reviews.css
