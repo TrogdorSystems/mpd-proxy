@@ -17,7 +17,7 @@ app.get('/:id', (req, res) => {
   res.send(output);
 });
 
-const port = 5000;
+const port = process.env.PORT || 8081;
 
 app.listen(port, () => {
   console.log('app is listening on', port);
