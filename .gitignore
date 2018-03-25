@@ -3,6 +3,8 @@ menu-component/
 reservations-component/
 reviews-component/
 
+.DS_Store
+
 node_modules/
 bundles/
 dist/productionBundle.js

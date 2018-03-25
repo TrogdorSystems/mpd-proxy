@@ -40,33 +40,33 @@ const server = http.createServer((req, res) => {
           });
         }
       });
-    } else if (url === `/productionBundle.js`) {
-      redisClient.get('productionBundle', (err, response) => {
-        if (response === null) {
+    } else if (url.indexOf('Bundle') > -1) {
+      redisClient.get(url.toString(), (err, response) => {
+        if (err) throw new Error(err);
+        if (response !== null) {
           res.end(response);
         } else {
           let bundle = '';
-          let readable = fs.createReadStream(`./bundles/productionBundle.js`)
-            .on('data', chunk => {
-              bundle += chunk;
-            }).on('end', () => {
-              console.log('end');
-              res.end(bundle);
-              redisClient.SET('productionBundle', bundle);
-            }).on('error', err => {
-              request(`http://localhost:8081${url}`).pipe(fs.createWriteStream('./bundles/productionBundle.js'))
-                .on('finish', () => {
-                  console.log('finish');
-                  fs.readFile('./bundles/productionBundle.js', 'utf-8', (err, fsRes) => {
-                    redisClient.SET('productionBundle', fsRes);
-                    res.end(fsRes)
-                    fs.createReadStream('./bundles/productionBundle.js').pipe(res);
-                  });
-                });
-            });
+          let readable = fs.createReadStream(`./bundles${url}`)
+              .on('data', chunk => {
+                bundle += chunk;
+              }).on('end', () => {
+                res.end(bundle);
+                redisClient.SET(url.toString(), bundle);
+              })     
+          .on('error', err => {
+            let readableBundle = request(`http://localhost:8081${url}`).pipe(fs.createWriteStream(`./bundles${url}`))
+              .on('finish', () => {
+                fs.readFile(`./bundles${url}`, 'utf-8', (err, fsRes) => {
+                  if (err) throw new Error(err);
+                  res.end(fsRes)
+                  redisClient.SET(url.toString(), fsRes);
+                });             
+              });
+          });         
         };
       });
-    }
+    };
   } else if (method === 'POST' && url === '/reservations') {
     let body = '';
     req.on('error', err => console.log(err))
@@ -81,7 +81,5 @@ const server = http.createServer((req, res) => {
     })
   }
 })
-// app.use(express.static('./dist'));
+
 server.listen(port, hostname, () => console.log(`server listening on ${port}`));
-// // load the template file
-// const compiled = _.template(fs.readFileSync('./dist/template.html', 'utf-8'))
