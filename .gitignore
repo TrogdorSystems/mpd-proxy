@@ -4,11 +4,16 @@ reservations-component/
 reviews-component/
 
 node_modules/
-
+bundles/
+dist/productionBundle.js
+dist/productionBundle-server.js
 about-bundle.js
 menu-bundle.js
 res-bundle-prod.js
 reviews-bundle.js
+dist/.DS_Store
+newrelic.js
+newrelic_agent.log
 
 about-styles.css
 reviews-reviews.css

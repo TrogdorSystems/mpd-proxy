@@ -8,12 +8,18 @@
   },
   "dependencies": {
     "express": "^4.16.2",
+    "moment": "^2.21.0",
+    "moment-random": "^1.0.3",
+    "newrelic": "^3.2.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "redis": "^2.8.0",
     "request": "^2.85.0",
     "underscore": "^1.8.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "artillery": "^1.6.0-14"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/thesilverspoon/proxy-tmk.git"
