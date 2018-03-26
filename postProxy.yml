@@ -1,0 +1,24 @@
+config:
+  target: 'http://localhost:8000'
+  phases:
+    - duration: 60
+      arrivalCount: 6000
+  processor: "./artilleryPost.js"
+
+scenarios:
+  - flow:
+    - function: "generateRandomPost"
+    - loop:
+      - get:
+          url: "/restaurants/{{ id }}/reservations/{{date}}"
+      - post:
+          url: "/reservations"
+          json:
+            restaurantId: "{{ id }}"
+            date: "{{date}}"
+            time: "{{time}}"
+            name: "{{name}}"
+            party: "{{party}}"
+      over: 
+        - "{ id }"
+      count: 200

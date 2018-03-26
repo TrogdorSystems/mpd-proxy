@@ -1,0 +1,15 @@
+config:
+  target: 'http://localhost:8000'
+  phases:
+    - duration: 100
+      arrivalCount: 8000
+  processor: "./artilleryGetOne.js"
+scenarios:
+  - flow:
+    - function: generateRandomGetData
+    - loop:
+      - log: " Id: {{id}} date: {{date}}"
+      - get:
+          url: "/restaurants/{{ id }}/reservations/{{date}}"
+      count: 20
+ 

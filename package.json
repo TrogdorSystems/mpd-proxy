@@ -4,15 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "express": "^4.16.2",
+    "faker": "^4.1.0",
+    "moment": "^2.21.0",
+    "moment-random": "^1.0.3",
+    "newrelic": "^3.2.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "redis": "^2.8.0",
+    "request": "^2.85.0",
     "underscore": "^1.8.3"
   },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "devDependencies": {
+    "artillery": "^1.6.0-14"
   },
   "repository": {
     "type": "git",
