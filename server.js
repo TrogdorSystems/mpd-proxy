@@ -1,4 +1,4 @@
-require('newrelic');
+// require('newrelic');
 const fs = require('fs');
 const Html = require('./dist/html.js')
 const http = require('http');
@@ -8,6 +8,8 @@ const { createElement } = require('react');
 const Reservation = require('./bundles/productionBundle-server').default;
 const redisClient = require('./cache')
 const moment = require('moment');
+const styles = require('./dist/proxyStyles.css');
+const servicePaths = require('./servicePaths');
 
 const port = 8000;
 const hostname = '127.0.0.1';
@@ -26,10 +28,10 @@ const server = http.createServer((req, res) => {
   const { method, url } = req;
   if (method === 'GET') {
     const urlSplit = url.split('/').slice(1);
-    [id, date] = [urlSplit[1], urlSplit[3]];
+    const [id, date] = [urlSplit[1], urlSplit[3]];
     if (url === '/') {
       let randomId = Math.floor(Math.random() * (10e6 - 1) - 1);
-      res.end(Html(rendercomponent(Reservation, randomId), 'silverspoon', randomId));
+      res.end(Html(rendercomponent(Reservation, randomId), 'silverspoon', randomId, styles));
     } else if (url === `/restaurants/${id}/reservations/${date}`) {
       const redisKey = `${id}${date}`;
       statistics.total += 1;
@@ -40,21 +42,26 @@ const server = http.createServer((req, res) => {
           res.end(response);
         } else {
           statistics.cacheMiss += 1;
-          request(`http://localhost:8081${url}`, (err, result) => {
-            redisClient.SETEX(redisKey, 20, result.body);
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(result.body);
+          http.get(`http://localhost:8081${url}`, (result) => {
+            let body = '';
+            result.on('data', chunk => body += chunk)
+            result.on('end', () => {
+              redisClient.SETEX(redisKey, 20, body);
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(body);
+            })
           });
         }
       });
     } else if (url.indexOf('Bundle') > -1) {
       redisClient.get(url.toString(), (err, response) => {
         if (err) throw new Error(err);
-        if (response !== null) {
+        if (response === null && response !== undefined) {
           res.end(response);
         } else {
+          //get bundle from file if not in cache
           let bundle = '';
-          let readable = fs.createReadStream(`./bundles${url}`)
+          fs.createReadStream(`./bundles${url}`)
               .on('data', chunk => {
                 bundle += chunk;
               }).on('end', () => {
@@ -62,14 +69,18 @@ const server = http.createServer((req, res) => {
                 redisClient.SET(url.toString(), bundle);
               })     
           .on('error', err => {
-            let readableBundle = request(`http://localhost:8081${url}`).pipe(fs.createWriteStream(`./bundles${url}`))
-              .on('finish', () => {
-                fs.readFile(`./bundles${url}`, 'utf-8', (err, fsRes) => {
-                  if (err) throw new Error(err);
-                  res.end(fsRes)
-                  redisClient.SET(url.toString(), fsRes);
-                });             
-              });
+            //get bundle from server if not in proxy file, then write it to file
+            http.get(`${servicePaths(url)}${url}`, response => response.pipe(res))
+              .on('finish', () => (
+                http.get(`${servicePaths(url)}${url}`, result => (
+                  result.pipe(fs.createWriteStream(`./bundles${url}`))
+                  .on('finish', () => (
+                    fs.readFile(`./bundles${url}`, 'utf-8', (err, fsRes) => (
+                      err ? console.error(err) : redisClient.SET(url.toString(), fsRes)
+                    ))
+                  ))
+                ))
+              ));
           });         
         };
       });
@@ -90,8 +101,8 @@ const server = http.createServer((req, res) => {
         method: method,
         json: JSON.parse(body), 
       }).pipe(res);
-    })
-  }
+    });
+  };
 })
 
 process.on('SIGINT', () => {
