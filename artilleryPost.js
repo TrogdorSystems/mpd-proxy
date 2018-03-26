@@ -1,7 +1,3 @@
-module.exports = {
-  generateRandomPost,
-};
-
 // Make sure to "npm install faker" first.
 const Faker = require('faker');
 const momentRandom = require('moment-random');
@@ -25,3 +21,7 @@ const generateRandomPost = (userContext, events, done) => {
   userContext.vars.time = time;
   return done();
 }
+
+module.exports = {
+  generateRandomPost,
+};

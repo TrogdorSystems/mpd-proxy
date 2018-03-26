@@ -6,6 +6,7 @@ reviews-component/
 .DS_Store
 
 node_modules/
+dump.rdb
 bundles/
 dist/productionBundle.js
 dist/productionBundle-server.js
