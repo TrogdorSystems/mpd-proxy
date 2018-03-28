@@ -1,18 +1,18 @@
-// require('newrelic');
+require('newrelic');
 const fs = require('fs');
-const Html = require('./dist/html.js')
+const path = require('path');
+const Html = require(path.join(__dirname, './dist/html.js'));
 const http = require('http');
 const request = require('request');
 const { renderToString } = require('react-dom/server');
 const { createElement } = require('react');
-const Reservation = require('./bundles/productionBundle-server').default;
+const Reservation = require(path.join(__dirname, './bundles/productionBundleserver')).default;
 const redisClient = require('./cache')
 const moment = require('moment');
 const styles = require('./dist/proxyStyles.css');
 const servicePaths = require('./servicePaths');
 
 const port = 8000;
-const hostname = '127.0.0.1';
 
 const statistics = {
   cacheHit: 0,
@@ -56,7 +56,7 @@ const server = http.createServer((req, res) => {
     } else if (url.indexOf('Bundle') > -1) {
       redisClient.get(url.toString(), (err, response) => {
         if (err) throw new Error(err);
-        if (response === null && response !== undefined) {
+        if (response !== null && response !== undefined) {
           res.end(response);
         } else {
           //get bundle from file if not in cache
@@ -70,7 +70,9 @@ const server = http.createServer((req, res) => {
               })     
           .on('error', err => {
             //get bundle from server if not in proxy file, then write it to file
-            http.get(`${servicePaths(url)}${url}`, response => response.pipe(res))
+            http.get(`${servicePaths(url)}${url}`, response => (
+                response.pipe(res)
+              ))
               .on('finish', () => (
                 http.get(`${servicePaths(url)}${url}`, result => (
                   result.pipe(fs.createWriteStream(`./bundles${url}`))
@@ -114,4 +116,4 @@ process.on('SIGINT', () => {
   process.exit();
 });
 
-server.listen(port, hostname, () => console.log(`server listening on ${port}`));
+server.listen(port, () => console.log(`server listening on ${port}`));

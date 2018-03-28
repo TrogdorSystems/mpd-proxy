@@ -1,0 +1,13 @@
+version: '3.3'
+
+services:
+  web:
+    image: mdurfey/proxy:latest
+    links:
+      - redis
+    ports:
+     - "8000:8000"
+  redis: 
+    ##get standard image from docker registry:
+    image: redis:latest
+
