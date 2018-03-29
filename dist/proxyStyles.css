@@ -1,8 +1,18 @@
 
 module.exports = `
-  #app {
+  #Reservation {
     display: flex;
     align-items: center;
     justify-content: center;
-  };
+    height: 400px;
+  }
+  #MenuView {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    margin-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: solid;
+    border-bottom-width: 1px;
+  }
 `;

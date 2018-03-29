@@ -8,6 +8,7 @@ reviews-component/
 node_modules/
 dump.rdb
 bundles/
+components
 dist/productionBundle.js
 dist/productionBundle-server.js
 about-bundle.js
