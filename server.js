@@ -7,7 +7,8 @@ const request = require('request');
 const { renderToString } = require('react-dom/server');
 const { createElement } = require('react');
 const Reservation = require('./bundles/productionBundle-server').default;
-const Menu = require('./bundles/bundle-server').default;
+const About = require('./bundles/app-server').default;
+const Menu = require('./bundles/menuBundle-server').default;
 const redisClient = require('./cache')
 const moment = require('moment');
 const styles = require('./dist/proxyStyles.css');
@@ -34,9 +35,11 @@ let renderedComponents = [Reservation, Menu];
   if (method === 'GET') {
     const urlSplit = url.split('/').slice(1);
     const [id, date] = [urlSplit[1], urlSplit[3]];
+    const [menuId, tag] = [urlSplit[1], urlSplit[3]];
     if (url === '/') {
       let randomId = Math.floor(Math.random() * (10e6 - 1) - 1);
-      res.end(Html([Reservation, Menu].map(comp => rendercomponent(comp, randomId)), 'silverspoon', randomId, styles));
+      let components = [Reservation, Menu, About];
+      res.end(Html(components.map(comp => rendercomponent(comp, randomId)), 'silverspoon', randomId, styles));
     } else if (url === `/restaurants/${id}/reservations/${date}`) {
       const redisKey = `${id}${date}`;
       statistics.total += 1;
@@ -58,7 +61,49 @@ let renderedComponents = [Reservation, Menu];
           });
         }
       });
-    } else if (url.indexOf('Bundle') > -1) {
+    } else if (url === `/restaurants/${menuId}/menu/${tag}`) {
+       const redisKey = `${menuId}${tag}`
+       redisClient.get(redisKey, (err, response) => {
+         if (response !== null) {
+           res.writeHead(200, { 'Content-Type': 'application/json' });
+           res.end(response);
+         } else {
+           http.get(`${servicePaths(url)}${url}`, response => {
+             let body = '';
+             response.on('data', chunk => body += chunk);
+             response.on('end', () => {
+               redisClient.SETEX(redisKey, 10, body);
+               res.writeHead(200, { 'Content-Type': 'application/json' });
+               res.end(body);
+             })
+           }).on('error', (err) => console.error(err))
+         }
+       })
+     } else if (url === `/restaurants/${id}`) {
+       http.get(`${servicePaths(url)}${url}}`, response => {
+         const redisKey = `restaurants${id}`
+         redisClient.get(redisKey, (err, response) => {
+           if (response !== null) {
+             response.pipe(res);
+           } else {
+             http.get(`${servicePaths(url)}${url}`, response => {
+               let body = '';
+               response.on('data', chunk => body += chunk);
+               response.on('end', () => {
+                 redisClient.SETEX(redisKey, 10, body);
+                 res.writeHead(200, { 'Content-Type': 'application/json' });
+                 res.end(body);
+               })
+             }).on('error', (err) => console.error(err))
+           }
+         })
+       })
+     } else if (url === `/styles.css`) {
+       http.get(`${servicePaths(url)}${url}`, response => {
+         res.writeHead(200, { 'Content-Type': 'text/css' })
+         response.pipe(res)
+       })
+      } else if (url.indexOf('Bundle') > -1) {
       redisClient.get(url.toString(), (err, response) => {
         if (err) throw new Error(err);
         if (response !== null && response !== undefined) {
