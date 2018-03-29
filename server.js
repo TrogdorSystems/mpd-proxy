@@ -100,10 +100,10 @@ const server = http.createServer((req, res) => {
         res.writeHead(200, { 'Content-Type': 'text/css' })
         response.pipe(res)
       })
-    } else if (url.indexOf('Bundle') > -1) {
+    } else if (url.toLowerCase().indexOf('bundle') > -1) {
       redisClient.get(url.toString(), (err, response) => {
         if (err) throw new Error(err);
-        if (response !== null && response !== undefined) {
+        if (response !== null) {
           res.end(response);
         } else {
           //get bundle from file if not in cache
@@ -112,13 +112,17 @@ const server = http.createServer((req, res) => {
               .on('data', chunk => {
                 bundle += chunk;
               }).on('end', () => {
+                res.writeHead(200, { 'Content-Type': 'text/javascript' });
                 res.end(bundle);
                 redisClient.SET(url.toString(), bundle);
               })     
           .on('error', err => {
-            // console.log('error!' , `./bundles${url}`)
+            console.log('error!' , `./bundles${url}`)
             //get bundle from server if not in proxy file, then write it to file
-            http.get(`${servicePaths(url)}${url}`, response => response.pipe(res))
+            http.get(`${servicePaths(url)}${url}`, response => {
+              res.writeHead(200, { 'Content-Type': 'text/javascript' });
+              response.pipe(res);
+            })
               .on('finish', () => (
                 http.get(`${servicePaths(url)}${url}`, result => (
                   result.pipe(fs.createWriteStream(`./bundles${url}`))
