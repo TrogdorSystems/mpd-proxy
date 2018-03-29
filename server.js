@@ -1,12 +1,12 @@
 require('newrelic');
 const fs = require('fs');
 const path = require('path');
-const Html = require(path.join(__dirname, './dist/html.js'));
+const Html = require('./dist/html.js');
 const http = require('http');
 const request = require('request');
 const { renderToString } = require('react-dom/server');
 const { createElement } = require('react');
-const Reservation = require(path.join(__dirname, './bundles/productionBundleserver')).default;
+const Reservation = require('./bundles/productionBundleserver').default;
 const redisClient = require('./cache')
 const moment = require('moment');
 const styles = require('./dist/proxyStyles.css');
@@ -42,7 +42,7 @@ const server = http.createServer((req, res) => {
           res.end(response);
         } else {
           statistics.cacheMiss += 1;
-          http.get(`http://localhost:8081${url}`, (result) => {
+          http.get(`http://ec2-54-219-137-44.us-west-1.compute.amazonaws.com${url}`, (result) => {
             let body = '';
             result.on('data', chunk => body += chunk)
             result.on('end', () => {
@@ -99,7 +99,7 @@ const server = http.createServer((req, res) => {
       body += chunk;
     }).on('end', () => {
       request({
-        url: `http://localhost:8081${url}`,
+        url: `http://ec2-54-219-137-44.us-west-1.compute.amazonaws.com${url}`,
         method: method,
         json: JSON.parse(body), 
       }).pipe(res);
