@@ -17,6 +17,7 @@ reviews-bundle.js
 dist/.DS_Store
 newrelic.js
 newrelic_agent.log
+components/
 
 about-styles.css
 reviews-reviews.css

@@ -7,6 +7,7 @@ const request = require('request');
 const { renderToString } = require('react-dom/server');
 const { createElement } = require('react');
 const Reservation = require('./bundles/productionBundle-server').default;
+const Menu = require('./bundles/bundle-server').default;
 const redisClient = require('./cache')
 const moment = require('moment');
 const styles = require('./dist/proxyStyles.css');
@@ -25,13 +26,17 @@ const server = http.createServer((req, res) => {
     let componentString = createElement(component, `{ id: ${id} }`, null);
     return renderToString(componentString);
   };
+
+let renderedComponents = [Reservation, Menu];
+
+
   const { method, url } = req;
   if (method === 'GET') {
     const urlSplit = url.split('/').slice(1);
     const [id, date] = [urlSplit[1], urlSplit[3]];
     if (url === '/') {
       let randomId = Math.floor(Math.random() * (10e6 - 1) - 1);
-      res.end(Html(rendercomponent(Reservation, randomId), 'silverspoon', randomId, styles));
+      res.end(Html([Reservation, Menu].map(comp => rendercomponent(comp, randomId)), 'silverspoon', randomId, styles));
     } else if (url === `/restaurants/${id}/reservations/${date}`) {
       const redisKey = `${id}${date}`;
       statistics.total += 1;
