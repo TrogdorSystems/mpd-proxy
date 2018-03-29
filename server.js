@@ -1,6 +1,7 @@
-// require('newrelic');
+require('newrelic');
 const fs = require('fs');
-const Html = require('./dist/html.js')
+const path = require('path');
+const Html = require('./dist/html.js');
 const http = require('http');
 const request = require('request');
 const { renderToString } = require('react-dom/server');
@@ -12,7 +13,6 @@ const styles = require('./dist/proxyStyles.css');
 const servicePaths = require('./servicePaths');
 
 const port = 8000;
-const hostname = '127.0.0.1';
 
 const statistics = {
   cacheHit: 0,
@@ -42,7 +42,7 @@ const server = http.createServer((req, res) => {
           res.end(response);
         } else {
           statistics.cacheMiss += 1;
-          http.get(`http://localhost:8081${url}`, (result) => {
+          http.get(`http://ec2-54-219-137-44.us-west-1.compute.amazonaws.com${url}`, (result) => {
             let body = '';
             result.on('data', chunk => body += chunk)
             result.on('end', () => {
@@ -56,7 +56,7 @@ const server = http.createServer((req, res) => {
     } else if (url.indexOf('Bundle') > -1) {
       redisClient.get(url.toString(), (err, response) => {
         if (err) throw new Error(err);
-        if (response === null && response !== undefined) {
+        if (response !== null && response !== undefined) {
           res.end(response);
         } else {
           //get bundle from file if not in cache
@@ -70,7 +70,9 @@ const server = http.createServer((req, res) => {
               })     
           .on('error', err => {
             //get bundle from server if not in proxy file, then write it to file
-            http.get(`${servicePaths(url)}${url}`, response => response.pipe(res))
+            http.get(`${servicePaths(url)}${url}`, response => (
+                response.pipe(res)
+              ))
               .on('finish', () => (
                 http.get(`${servicePaths(url)}${url}`, result => (
                   result.pipe(fs.createWriteStream(`./bundles${url}`))
@@ -97,7 +99,7 @@ const server = http.createServer((req, res) => {
       body += chunk;
     }).on('end', () => {
       request({
-        url: `http://localhost:8081${url}`,
+        url: `http://ec2-54-219-137-44.us-west-1.compute.amazonaws.com${url}`,
         method: method,
         json: JSON.parse(body), 
       }).pipe(res);
@@ -114,4 +116,4 @@ process.on('SIGINT', () => {
   process.exit();
 });
 
-server.listen(port, hostname, () => console.log(`server listening on ${port}`));
+server.listen(port, () => console.log(`server listening on ${port}`));
