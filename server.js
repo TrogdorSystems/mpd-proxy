@@ -23,13 +23,12 @@ const statistics = {
 };
 
 const server = http.createServer((req, res) => {
-  let rendercomponent = (component, id) => {
-    let componentString = createElement(component, `{ id: ${id} }`, null);
+  const rendercomponent = (component, id) => {
+    const componentString = createElement(component, `{ id: ${id} }`, null);
     return renderToString(componentString);
   };
 
-let renderedComponents = [Reservation, Menu];
-
+  const components = [Reservation, Menu, About];
 
   const { method, url } = req;
   if (method === 'GET') {
@@ -37,8 +36,7 @@ let renderedComponents = [Reservation, Menu];
     const [id, date] = [urlSplit[1], urlSplit[3]];
     const [menuId, tag] = [urlSplit[1], urlSplit[3]];
     if (url === '/') {
-      let randomId = Math.floor(Math.random() * (10e6 - 1) - 1);
-      let components = [Reservation, Menu, About];
+      const randomId = Math.floor(Math.random() * (10e6 - 1) - 1);
       res.end(Html(components.map(comp => rendercomponent(comp, randomId)), 'silverspoon', randomId, styles));
     } else if (url === `/restaurants/${id}/reservations/${date}`) {
       const redisKey = `${id}${date}`;
@@ -103,7 +101,7 @@ let renderedComponents = [Reservation, Menu];
          res.writeHead(200, { 'Content-Type': 'text/css' })
          response.pipe(res)
        })
-      } else if (url.indexOf('Bundle') > -1) {
+      } else if (url.toLowerCase().indexOf('bundle') > -1) {
       redisClient.get(url.toString(), (err, response) => {
         if (err) throw new Error(err);
         if (response !== null && response !== undefined) {
