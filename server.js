@@ -82,7 +82,7 @@ const server = http.createServer((req, res) => {
          const redisKey = `restaurants${id}`
          redisClient.get(redisKey, (err, response) => {
            if (response !== null) {
-             response.pipe(res);
+             res.end(response);
            } else {
              http.get(`${servicePaths(url)}${url}`, response => {
                let body = '';

@@ -1,15 +1,25 @@
 config:
-  target: 'http://localhost:8000'
+  target: 'http://ec2-13-56-240-231.us-west-1.compute.amazonaws.com'
+  payload:
+    path: './menuUri.csv'
+    fields:
+      - 'uri'
   phases:
-    - duration: 100
-      arrivalCount: 8000
+    - duration: 70
+      arrivalCount: 20
   processor: "./artilleryGetOne.js"
 scenarios:
   - flow:
     - function: generateRandomGetData
     - loop:
-      - log: " Id: {{id}} date: {{date}}"
       - get:
           url: "/restaurants/{{ id }}/reservations/{{date}}"
+      - log: 'this is the url "/restaurants/{{ id }}/reservations/{{date}}"'
+      - get:
+          url: "{{ uri }}"
+      - log: "{{uri}}"
+      - get:
+          url: "/restaurants/{{ id }}"
+      - log: "/restaurants/{{ id }}"
       count: 20
  
