@@ -1,10 +1,13 @@
 config:
-  target: 'http://localhost:8000'
+  target: 'http://ec2-13-56-240-231.us-west-1.compute.amazonaws.com'
+  payload:
+    path: './menuUri.csv'
+    fields:
+      - 'uri'
   phases:
     - duration: 60
       arrivalCount: 6000
   processor: "./artilleryPost.js"
-
 scenarios:
   - flow:
     - function: "generateRandomPost"
