@@ -2,7 +2,7 @@ const Html = ( component, title, id, styles ) => `
   <!DOCTYPE html>
   <html>
     <head>
-    <style type="text/css">
+    <style type="text/csss">
     ${styles}
     </style>
       <title>${title}</title>
